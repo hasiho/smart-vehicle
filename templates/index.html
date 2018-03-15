@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <title>Autonomus Vechicle</title>
+	<script src="{{url_for('static', filename='js/jquery-3.1.1.min.js') }}" charset="utf-8"></script>
+	<script src="{{url_for('static', filename='js/d3.min.js') }}" charset="utf-8"></script>
+	<script src="{{url_for('static', filename='js/bootstrap.min.js') }}" charset="utf-8"></script>
+	<link rel="stylesheet" type="text/css" charset="utf-8"  href="{{url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap-theme.min.css') }}">
+</style>
+
+<script>
+
+var direction_key_pressed = false;
+var run_key_pressed = false;
+
+var timer_get_status = null;
+var enable_timer_get_status = true;
+
+$(document).ready(function(){
+  
+    $("#btn_left").on("mousedown", function(e){
+        if (direction_key_pressed == true){
+            return;
+        }        
+        direction_key_pressed = true;
+        motor( '', 'left' );
+    });
+    $("#btn_left").on("mouseup", function(e){
+        direction_key_pressed = false;
+        motor( '', 'center' );
+    });
+    $("#btn_right").on("mousedown", function(e){
+        if (direction_key_pressed == true){
+            return;
+        }        
+        direction_key_pressed = true;
+        motor( '', 'right' );
+    });
+    $("#btn_right").on("mouseup", function(e){
+        direction_key_pressed = false;
+        motor( '', 'center' );
+    });
+    
+    
+    $("#btn_acceleration").on("mousedown", function(e){
+        if (run_key_pressed == true){
+            return;
+        }        
+        run_key_pressed = true;
+        acceleration(true);
+    });
+    $("#btn_acceleration").on("mouseup", function(e){
+        run_key_pressed = false;
+        acceleration(false);
+    });
+
+    $("#btn_brake").on("mousedown", function(e){
+        if (run_key_pressed == true){
+            return;
+        }        
+        run_key_pressed = true;
+		brake(true);
+    });
+    $("#btn_brake").on("mouseup", function(e){
+        run_key_pressed = false;
+        brake(false)
+    });
+    
+    
+    
+
+
+    $("body").on("keydown", function(e){
+        switch (e.keyCode){
+            case 188:
+                $("#btn_left").mousedown();
+                break;
+            case 190:
+                $("#btn_right").mousedown();
+                break;
+            case 90:
+                $("#btn_acceleration").mousedown();
+                break;
+            case 88:
+                $("#btn_brake").mousedown();
+                break;
+        }
+    });
+    $("body").on("keyup", function(e){
+        switch (e.keyCode){
+            case 188:
+                $("#btn_left").mouseup();
+                break;
+            case 190:
+                $("#btn_right").mouseup();
+                break;
+            case 90:
+                $("#btn_acceleration").mouseup();
+                break;
+            case 88:
+                $("#btn_brake").mouseup();
+                break;
+        }
+    });
+
+
+	$("#btn_headlight_on").on('click', function(){
+		headlight( 0 );
+	});
+	$("#btn_headlight_off").on('click', function(){
+		headlight( 1 );
+	});
+	$("#btn_headlight_blink").on('click', function(){
+		headlight_blink( 0.1, 10 );
+    });
+    
+    $("#btn_get_status").on('click', function(){
+        get_status();
+    });
+
+    $("#btn_start_work_thread").on('click', function(){
+        work_thread_enable( true );
+    });
+    $("#btn_stop_work_thread").on('click', function(){
+        work_thread_enable( false );
+    });
+
+    $("#ckb_enable_get_status_polling").on('click', function() {
+        if ( $(this).prop('checked') ) { 
+            enable_timer_get_status = true;
+            var timer_get_status = setInterval(function() {                 
+                get_status();
+                if (enable_timer_get_status == false){
+                    clearInterval(timer_get_status);                    
+                }
+                }, 1000);            
+        } 
+        else { 
+            enable_timer_get_status = false;
+        } 
+    }); 
+
+
+    $('input[type=radio][name=gears]').on('change', function(){
+        var gear_value = $(this).val();
+        console.log('change gear to :' + gear_value);
+        
+        gear( gear_value );
+    });
+
+
+    $("#ckb_enable_get_status_polling").trigger('click');
+});
+
+
+function work_thread_enable( enable ){
+    // 메인 주행 쓰레드의 시작/종료 제어
+    $.ajax({
+        type: "POST", 
+        url: "work_thread_enable", 
+        dataType: "text", 
+        data: { 'enable': enable }, 
+        success: function(data){
+            console.log(" response for work_thread_enable. %s ", data );
+        }, 
+        error: function(data){
+            console.log("fail work_therad_enable post request");
+        }
+    })
+}
+
+function get_status(){
+
+    $.ajax({
+        type: "POST", 
+        url: "get_status", 
+        dataType: "text", 
+        data: { message: "test" }, 
+        success: function(res){
+            console.log(" response for get_status. %s ", res );
+            var today = new Date();
+            var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+            var dateTime = date+' '+time;
+
+            var data = JSON.parse(res);
+
+            var label_info = $("#vehicle_info");
+            label_info.empty();
+
+            var ul = $("<ul></ul>").appendTo(label_info);
+            $("<li></li>").text("update time: " + dateTime).appendTo(ul);            
+
+            var thread_running_color = (data.is_running_work_thread == true) ? 'yellowgreen': 'mistyrose';
+            $("<li></li>").text("is_running_work_thread: " + data.is_running_work_thread).css('color', thread_running_color).appendTo(ul);
+
+            $("<li></li>").text("acceleration: " + data.acceleration).appendTo(ul);
+            $("<li></li>").text("brake: " + data.brake).appendTo(ul);   
+
+            var gear_color = "white";
+            switch( data.gear ){
+                case 0:  gear_color = "crimson"; break;
+                case -1:  gear_color = "dodgerblue";  break;
+                case 5: 
+                case 4: 
+                case 3: 
+                case 2: 
+                case 1: 
+                    gear_color = "white";
+                    break;
+            }
+            $("<li></li>").text("gear: " + data.gear).css('color', gear_color).appendTo(ul);
+            $("<li></li>").text("acceleration_rate: " + data.acceleration_rate).appendTo(ul);
+            $("<li></li>").text("reduction_rate: " + data.reduction_rate).appendTo(ul);
+            $("<li></li>").text("direction: " + data.direction).appendTo(ul);
+            $("<li></li>").text("current_duty: " + data.current_duty).appendTo(ul);
+            $("<li></li>").text("target_duty: " + data.target_duty).appendTo(ul);
+           
+        }, 
+        error: function(data){
+            console.log("fail get_status post request");
+        }
+    })
+}
+
+function gear( _val ){
+    // change gear
+    console.log("send gear chnage post request. %s", _val);
+    $.ajax({
+        type: "POST", 
+        url: "gear", 
+        dataType: "text", 
+        data: { 'gear_value': _val }, 
+        success: function(data){
+            console.log("success gear change request");
+        }, 
+        error: function(){
+            console.log("fail gear post request");
+        }
+    });
+}
+
+function acceleration( _onoff ){
+    console.log("acceleration request. value: %s", _onoff );
+    $.ajax({
+        type: "POST", 
+        url: "acceleration", 
+        dataType: "text", 
+        data: { 'onoff': _onoff }, 
+        success: function(data){
+            console.log("success acceleration change request");
+        }, 
+        error: function(){
+            console.log("fail acceleration post request");
+        }
+    });
+}
+function brake( _onoff ){
+    console.log("brake request. value: %s", _onoff );
+    $.ajax({
+        type: "POST", 
+        url: "brake", 
+        dataType: "text", 
+        data: { 'onoff': _onoff }, 
+        success: function(data){
+            console.log("success brake change request");
+        }, 
+        error: function(){
+            console.log("fail brake post request");
+        }
+    });
+}
+function direction( _direction ){
+    console.log("direction request. value: %s", _direction );
+    $.ajax({
+        type: "POST", 
+        url: "direction", 
+        dataType: "text", 
+        data: { 'dir': _direction }, 
+        success: function(data){
+            console.log("success direction change request");
+        }, 
+        error: function(){
+            console.log("fail direction post request");
+        }
+    });
+    
+}
+
+
+function motor( _run, _turn ){
+    console.log("send POST motor run:%s turn:%s", _run, _turn);
+	$.ajax({
+		type: "POST", 
+		url: "motor", 
+		dataType: "text", 
+		data: {  run: _run, turn: _turn  }, 
+		success: function(data){
+			console.log(" response for motor control (run:%s, turn:%s) post. %s ", _run, _turn, data);
+		},
+		error: function(data){
+			console.log(" fail post request ");
+		}
+	});
+}
+
+function headlight_blink( _interval, _count ){
+	$.ajax({
+		type: "POST", 
+		url: "blink_led", 
+		dataType: "text", 
+		data: { interval: _interval, count: _count  }, 
+		success: function(data){
+			console.log(" success post request ");
+		},
+		error: function(data){
+			console.log(" fail post request ");
+		}
+	});
+}
+function headlight( onoff ){
+	console.log('headlight ' + onoff);
+	$.ajax({
+		type: "POST", 
+		url: "headlight", 
+		dataType: "text", 
+		data: {  turnon: onoff }, 
+		success: function(data){
+			console.log(" success post request ");
+		},
+		error: function(data){
+			console.log(" fail post request ");
+		}
+	});
+}
+
+</script>
+
+<style>
+#overlay {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255,0,0,0.3);
+    z-index: 2;
+    cursor: pointer;
+}
+
+#div_streaming {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 600px;
+    height: 460px;
+    background-color: rgba(200, 100, 150, 0);
+}
+
+#div_vehicle_info {
+    position: absolute;
+    font-size: 12px;
+    top: 50px;
+    left: 0;
+    width: 600px;
+    height: 200px;
+    background-color: rgba(240, 240, 100, 0);
+    color: white; 
+
+    text-shadow: black 0px 2px, black 2px 0px, black -2px 0px, 
+      black 0px -2px, black -1.4px -1.4px, black 1.4px 1.4px, 
+      black 1.4px -1.4px, black -1.4px 1.4px;     
+}
+
+
+#div_controller {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 600px;
+    height: 200px;
+    background-color: rgba(105,200,250,0.1);
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    padding: 0;
+
+    color: white; 
+    text-shadow: black 0px 2px, black 2px 0px, black -2px 0px, 
+      black 0px -2px, black -1.4px -1.4px, black 1.4px 1.4px, 
+      black 1.4px -1.4px, black -1.4px 1.4px;     
+}
+
+</style>
+
+</head>
+<body>
+    <h5>Autonomous vehicle Demo</h5>
+
+<div id="div_streaming" >
+    <h6> Streaming Picamera Image. 카메라의 원본 스트리밍 영상을 출력하는 레이어 </h6>
+    <img src="video_feed" width="480" height="328" />
+    <!--<img src="http://192.168.23.98:8000/stream.mjpg" width="520" height="400" /> -->
+</div>
+
+<div id="div_vehicle_info" >
+    <h6> Vehicle Information Layer. 차량의 주행 정보를 출력하는 레이어 </h6>    
+    <label id="vehicle_info"> Vehicle information ... </label>
+</div>
+
+<div id="div_controller">
+    <h6> Controller Layer. 차량의 주행 조작패널 레이어 </h6>
+    <div>
+        <button id='btn_duty_up' class='btn btn-xs btn-default'> duty up </button>
+        <button id='btn_duty_down' class='btn btn-xs btn-default'> duty down </button>
+
+        <button id="btn_headlight_on" class='btn btn-xs btn-default'> light on </button>
+        <button id="btn_headlight_off" class='btn btn-xs btn-default'> light off </button>
+        <button id="btn_headlight_blink" class='btn btn-xs btn-default'> light blink </button>
+
+        <button id="btn_get_status" class="btn btn-xs btn-success"> get status </button>
+        <label> get status polling 
+            <input type="checkbox" id="ckb_enable_get_status_polling">
+        </label>
+    </div>
+
+    <div class='container btn-group'>
+        <a id='btn_left' class='btn btn-default' href='#'>Left </a>
+        <a id='btn_right' class='btn btn-default' href='#'> Right </a>
+        <a id='btn_acceleration' class='btn btn-success' href='#'> Acceleration </a>
+        <a id='btn_brake' class='btn btn-danger' href='#'> Brake </a>
+
+    </div>
+
+    <div style="width: 80px; background-color: mistyrose;" class='btn-group btn-group-vertical' data-toggle='buttons'>
+        <label class='btn btn-default  btn-xs'>
+            <input type='radio' name='gears' value='5' autocomplete="off" > 5단
+        </label>
+        <label class='btn btn-default btn-xs'>
+            <input type='radio' name='gears' value='4' autocomplete="off"> 4단    
+        </label>
+        <label class='btn btn-default btn-xs'>
+            <input type='radio' name='gears' value='3' autocomplete="off"> 3단
+        </label>
+        <label class='btn btn-default btn-xs'>
+            <input type='radio' name='gears' value='2' autocomplete="off"> 2단
+        </label>
+        <label class='btn btn-default btn-xs'>
+            <input type='radio' name='gears' value='1' autocomplete="off"> 1단
+        </label>
+        <label class='btn btn-danger  active btn-xs'>
+            <input type='radio' name='gears' value='0' autocomplete="off" checked> 중립
+        </label>
+        <label class='btn btn-info btn-xs'>
+            <input type='radio' name='gears' value='-1' autocomplete="off"> 후진
+        </label>
+    </div>
+
+    <div >
+        <button id="btn_start_work_thread" class="btn btn-xs btn-success"> Start Running Thread </button>
+        <button id="btn_stop_work_thread" class="btn btn-xs btn-danger"> Stop Running Thread </butotn>
+    </div>
+    
+    <!-- <div style="width: 400px; background-color: dodgerblue" class="btn-group btn-group-vertical container">
+            -->
+    <div class="container">
+        <form>
+            <!-- <div class='form-group row'>
+                <label for="gear_5" class='col-sm-2'> gear 5 
+                </label>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control" id="gear_5" 
+                    placeholde="0~100">
+                </div>
+            </div> -->
+            <!-- <div class='form-group row'>
+                <label for="gear_5" class='col-sm-2 col-form-label'> gear 5 </label>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control" id="gear_4" placeholde="0~100">
+                </div>
+            </div>
+            <div class='form-group row'>
+                <label for="gear_5" class='col-sm-2 col-form-label'> gear 5 </label>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control" id="gear_3" placeholde="0~100">
+                </div>
+            </div>
+            <div class='form-group row'>
+                <label for="gear_5" class='col-sm-2 col-form-label'> gear 5 </label>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control" id="gear_2" placeholde="0~100">
+                </div>
+            </div> -->
+            </form>
+    <!-- </div> -->
+    </div>
+</div>  <!-- end of div_controller -->
+
+</body>
+</html>

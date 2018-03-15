@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<title> HAHO MEDI PROJECT 2016 </title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/jquery.min.js"></script>
+<script src="//code/jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+
+<script> window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+<script type=text/javascript>
+	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+
+
+<div class=page>
+	<h1> HAHO PROJECT 2016 </h1>
+	<hr>
+	{% block header %}
+	{% endblock %}
+	<hr>
+	{% block content %}
+	{% endblock %}
+	<hr>
+	{% block footer %}
+	{% endblock %}
+</div>

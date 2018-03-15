@@ -1,0 +1,141 @@
+body		{ font-family: sans-serif; background: #eee; }
+a, h1, h2 	{ color: #ff0099; }
+h1, h2 		{ font-family: 'Georgia', serif; margin: 0; }
+h1 			{ border-bottom: 2px solid #eee; }
+h2			{ font-size: 1.2em; }
+
+
+a:hover 	{ background: #F6CED8; }
+
+
+.page		{ margin: 2em auto; width: 50em; border: 5px solid #ccc;
+				padding: 0.8em; background: white; }
+.entries	{ list-style: none; margin: 0; padding: 0; }
+.entries li { margin: 0.8em 1.2em; }
+.entries li h2 { margin-left: -1em; }
+
+.metanav	{ text-align: right; font-size: 0.8em; padding: 0.3em;
+				margin-bottom: 1em; background: #fafafa; }
+.flash 		{ background: #cee5f5; padding: 0.5em;
+				border: 1px solid #aacbe2; }
+.error 		{ background: #f0d6d6; padding: 0.5em; }
+
+table 		{ border-collapse: collapse;	}
+table, th, td { border: 1px solid black; }
+
+
+
+table.t_ex2 {background:#E2F2D3; width:90%; margin:0 auto; text-align:right}
+.t_ex2 td, .t_ex2 th {border:1px solid #33904E;padding:0px;text-align:center}
+.t_ex2 th {background:#8FC147; color:#fff; text-align:center}
+table.t_ex2 .c1 {text-align:center}
+table.t_ex2 .c2 {text-align:left}
+
+
+td.pintype_vcc { background:#FFAAAA; text-align:center }
+td.pintype_gnd { background:#AAAAFF; text-align:center }
+td.pintype_gpio { background:#DDDD99; text-align:center }
+
+.boxshadow
+{
+	-moz-box-shadow: 3px 3px 5px #535353;
+	-webkit-box-shadow: 3px 3px 5px #535353;
+	box-shadow: 3px 3px 5px #535353;
+}
+.roundbox
+{
+	-moz-border-radius: 6px 6px 6px 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px 6px 6px 6px;
+}
+
+
+button.accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 5px;
+    width: 80%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+}
+button.accordion.active, button.accordion:hover {
+    background-color: #ddd;
+}
+div.panel {
+    padding: 0 25px 0 30px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: 0.6s ease-in-out;
+    opacity: 0;
+}
+
+div.panel.show {
+        opacity: 1;
+        max-height: 500px;
+}
+
+
+
+/* The switch - the box around the slider */
+.switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 10px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+}
+
+.slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 10px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+}
+
+input:checked + .slider {
+        background-color: #2196F3;
+}
+
+input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+        -webkit-transform: translateX(22px);
+        -ms-transform: translateX(22px);
+        transform: translateX(22px);
+}
+
+/* Rounded sliders */
+.slider.round {
+        border-radius: 20px;
+}
+
+.slider.round:before {
+        border-radius: 50%;
+}

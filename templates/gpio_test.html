@@ -1,0 +1,85 @@
+
+<script type=text/javascript>
+$(document).ready(function(){
+
+	request_gpio_status();
+
+	$(document).on("click", "input:checkbox[id=pin_value]", function(){
+		console.log('checkbox clicked');
+
+		var chkbox = $(this);
+		var pin_no = chkbox.attr('name');
+		var pin_value = chkbox.val();
+
+		console.log('is checked: ' + $(this).is(":checked"));
+		console.log('is checked  : ' + (chkbox.is(":checked")?1:0));
+
+		$.post( '/set_gpio_value',
+			{ no: pin_no,
+			  value: (chkbox.is(":checked") ? 1 : 0)
+			},
+			function( data, status ){
+				console.log( status );
+				console.log( "data:" + data );
+				chkbox.prop('checked', data =='true' );
+			});
+		return false;
+	});
+
+});	// end ready
+
+
+function request_gpio_status()
+{
+	console.log("request_gpio_status");
+	$.getJSON( $SCRIPT_ROOT + "/gpio_status", refresh_gpio_status );
+
+}	// end request_gpio_status
+
+
+function refresh_gpio_status(data)
+{
+	console.log(data);
+	var str = "<table id=gpio_table border=1px>";
+
+	$.each( data, function( i, item ){
+
+		str += "<tr>";
+		str += "<td>" + data[i].no + "</td>";
+		str += "<td>" + data[i].name + "</td>";
+		str += "<td id=td_pintype >" + data[i].pintype + "</td>";
+		str += "<td>" + data[i].value + "</td>";
+		str += "<td><input type=checkbox id=pin_value name=" + i + " value=" + data[i].value + " /></td>";
+		str += "</tr>";
+
+	});	// end each
+	str += "</table>";
+
+	$("#gpio_status").html(str);
+    $("#gpio_table").addClass("t_ex2");
+
+
+    if( $("#td_pintype").val() == 1)
+    {
+        console.log("td_pintype value:" + $("#td_pintype").val());
+       $(this).addClass("pintype_vcc");
+    }
+    else
+    {
+        console.log("td_pintype value:" + $("#td_pintype").val());
+
+       $(this).addClass("pintype_gpio");
+    }
+}	// end refresh_gpio_status
+
+</script>
+
+
+<h1> GPIO Test </h1>
+
+<div id=gpio_status>
+		gpio status <br>
+
+</div>
+
+

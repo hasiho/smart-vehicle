@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <title>carePeel</title>
+	<script src="{{url_for('static', filename='js/jquery-3.1.1.min.js') }}" charset="utf-8"></script>
+	<script src="{{url_for('static', filename='js/d3.min.js') }}" charset="utf-8"></script>
+	<script src="{{url_for('static', filename='js/bootstrap.min.js') }}" charset="utf-8"></script>
+	<link rel="stylesheet" type="text/css" charset="utf-8"  href="{{url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap-theme.min.css') }}">
+    <style>
+        .page {
+            width: 1020px;
+            height: 500px;
+            padding: 0px;
+            margin: 0px;
+            color: white;
+        }
+        div .menu {
+            height: 288px;
+            font-size: 2.8em;
+            font-family: monospace;
+            text-align: center;
+            padding-top: 60px;
+        }
+        div .menu:hover {
+            cursor: pointer;
+            cursor: hand;
+        }
+        div .menu_aha {
+            /*background-color: #ee8833;*/
+            background-color: rgba(255,158,37,0.7);
+        }
+        div .menu_aha:hover {
+        }
+
+        div .bg-aha {
+            /*background-color: #ee8833;*/
+            background-color: rgba(255,88,33,0.5);
+            width: 100%;
+            height: 100%;
+        }
+
+
+        div .menu_bha {
+            /*background-color: #77aa11;*/
+            background-color: rgba(107,151,21, 0.7);
+        }
+        div .menu_bha:hover {
+        }
+        div .bg-bha {
+            /*background-color: #77aa11;*/
+            background-color: rgba(77, 121, 11, 0.5);
+            width: 100%;
+            height: 100%;
+        }
+
+        div .menu_hyd {
+            /*background-color: #6699ff;*/
+            background-color: rgba(56,169,255, 0.7);
+        }
+        div .menu_hyd:hover {
+        }
+        div .bg-hyd {
+            /*background-color: #6699ff;*/
+            background-color: rgba(66,99,255, 0.5);
+            width: 100%;
+            height: 100%;
+        }
+
+        div .menu_oxygen {
+            /*background-color: mediumvioletred;*/
+            background-color: rgba(230,60,90, 0.7);
+        }
+        div .menu_oxygen:hover {
+        }
+        div .bg-oxygen {
+            /*background-color: mediumvioletred;*/
+            background-color: rgba(210,40,90, 0.5);
+            width: 100%;
+            height: 100%;
+        }
+
+        div .menu_clean {
+            /*background-color: #3344dd;*/
+            background-color: rgba(88,78,250, 0.7);
+        }
+        div .menu_clean:hover {
+        }
+        div .bg-clean {
+            /*background-color: #3344dd;*/
+            background-color: rgba(48,68,230, 0.5);
+            width: 100%;
+            height: 100%;
+        }
+
+
+        div .menu_config {
+            /*background-color: #333;*/
+            background-color: rgba(50,50,50, 0.7);
+        }
+        div .menu_config:hover {
+            background-color: #444;
+        }
+        div .bg-config {
+            /*background-color: #444;*/
+            width: 100%;
+            height: 100%;
+        }
+
+        table.main_menu_table {
+            background-color: none;
+        }
+
+        div.tab-pane {
+            /*background-color: #444444;*/
+        }
+        div.tab-content {
+        }
+
+        td.td_menu {
+            text-align: center;
+        }
+        div.content-panel {
+            background-color: dodgerblue;
+        }
+
+.level_btn_active_bg_aha {
+    fill: #ee8833;
+}
+
+svg.level-btn {
+    width: 580px;
+    height: 580px;
+}
+svg.action-btn {
+    width: 360px;
+    height: 360px;
+}
+.no-gutter > [class*='col-']
+    {
+        padding-right:0;
+        padding-left:0;
+    }
+
+    svg.menu-icon {
+        width: 120px;
+        height: 120px;
+        fill: white;
+        fill-opacity: 0.5;
+    }
+    svg.menu-icon:hover {
+        width: 120px;
+        height: 120px;
+        fill: white;
+        fill-opacity: 0.9;
+    }
+
+
+    svg.config-small-icon {
+        width: 100px;
+        height: 100px;
+        fill: white;
+        fill-opacity: 0.5;
+    }
+    svg.config-small-icon:hover {
+        width: 100px;
+        height: 100px;
+        fill: white;
+        fill-opacity: 0.9;
+    }
+
+    svg.menu-bg-icon {
+        width: 100px;
+        height:100px;
+        fill:white;
+        fill-opacity:0.2;
+    }
+    svg.exit-small-icon {
+        width: 100px;
+        height: 100px;
+        fill: white;
+        stroke: black;
+    }
+    svg.exit-small-icon:hover{
+        width: 100px;
+        height: 100px;
+        fill: gainsboro;
+        stroke: black;
+    }
+
+</style>
+
+<style>
+    #chart{     text-align: center;     }
+    .monthArc {
+        fill: white;
+        stroke: #AAAAAA;
+    }
+    .monthText {
+        fill: #6B6B6B;
+        font-size: 13px;
+        font-family: 'Courgette', sans-serif;
+    }
+</style>
+<style>
+    .shadow {
+        -webkit-filter: drop-shadow( 0px 3px 3px rgba(0,0,0,.5));
+        filter: drop-shadow( 0px 3px 3px rgba(0,0,0,.5));
+    }
+</style>
+<style>
+    body {
+        position: relative;
+        background:
+            radial-gradient(black 15%, transparent 16%) 0 0,
+            radial-gradient(black 15%, transparent 16%) 8px 8px,
+            radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+            radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+        background-color:#282828;
+        background-size:16px 16px;
+    }
+</style>
+<style>
+.unselectable {
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+
+    /* No support for these yet, use at own risk */
+    -o-user-select: none;
+    user-select: none;
+}
+</style>
+<style>
+.btn span.glyphicon {
+    opacity: 0;
+}
+.btn.active span.glyphicon {
+    opacity: 1;
+}
+</style>
+<style>
+.close-x {
+    stroke: black;
+    fill: transparent;
+    stroke-linecap: round;
+    stroke-width: 5;
+}
+button {
+    width: 100px;
+    height: 100px;
+    padding: 0;
+}
+</style>
+</head>
+<body>
+<script>
+
+/* ***************************************************
+ * Clean Button
+ * ***************************************************/
+function CleanButton (svg_id, btn_id, _base_color, _increase_mode = false){
+    this.svg_id = svg_id;
+    this.btn_id = btn_id;
+    this.radius = 200;
+    this.width = 120;
+    this.height = 120;
+    this.cx = 100;
+    this.cy = 100;
+    this.padding = 30;
+    var button_status = false;
+    this.is_running = false;
+    this.base_color = _base_color;
+    var increase_mode = _increase_mode;
+
+    var action_start_time = null;
+    var tau = 2 * Math.PI;
+
+    var startOperationEventHandler = null;
+    var stopOperationEventHandler = null;
+    var tickNotifyEventHandler = null;  // notify current timer value to outside
+    var timeoutNotifyEventHandler = null;   // clean timeout notify event handler
+    var BTN_NORMAL_TEXT = "START";
+    var BTN_PRESSED_TEXT = "STOP"
+
+
+    var CLEAN_TIMEOUT = 180;    // 3 minutes timer
+
+
+    this.setOperationStartEventHandler = function(callback){
+        if (typeof callback === "function"){
+            console.log("clean button set startCallbackFunction");
+            startOperationEventHandler = callback;
+        }
+    }
+    this.setOperationStopEventHandler = function(callback){
+        if (typeof callback === "function"){
+            console.log("clean button set stopCallbackFunction");
+            stopOperationEventHandler = callback;
+        }
+    }
+    this.setTickNotifyEventHandler = function(callback){
+        if (typeof callback === "function"){
+            console.log("clean button set tickNotifyEventHandler");
+            tickNotifyEventHandler = callback;
+        }
+    }
+    this.setTimeoutNotifyEventHandler = function(callback){
+        if (typeof callback === "function"){
+            console.log("clean button set timeoutNotifyEventHandler");
+            timeoutNotifyEventHandler = callback;
+        }
+    }
+
+    this.defineShadow = function() {
+        var svg = d3.select('#' + this.svg_id);
+        var defs = svg.append('defs');
+        var btn_circle = d3.select('#btn_clean_body_' + btn_id);
+        var shadow = defs.append('filter')
+            .attr('id', 'dropShadow')
+            .attr('x', btn_circle.attr('x') - this.padding)
+            .attr('y', btn_circle.attr('y') - this.padding)
+            .attr('width', btn_circle.attr('width') + 20 * this.padding)
+            .attr('height', btn_circle.attr('height') + 20 * this.padding);
+
+        shadow.append('feGaussianBlur')
+            .attr('in', 'SourceAlpha')
+            .attr('stdDeviation', '5');
+        shadow.append('feOffset')
+            .attr('dx', '4')
+            .attr('dy', '6');
+        var merge = shadow.append('feMerge');
+        merge.append('feMergeNode');
+        merge.append('feMergeNode')
+            .attr('in', 'SourceGraphic');
+    }
+
+    this.setIsRunning = function(_is_running){
+        is_running = _is_running;
+    }
+
+    // initialize CleanButton
+    this.init = function(){
+        var svg = d3.select('#' + this.svg_id);
+        var g = svg.append('g');
+        this.width = svg.attr('width') - this.padding * 2;
+        this.height = svg.attr('height') - this.padding * 2;
+        this.cx = this.width/2 + this.padding;
+        this.cy = this.height/2 + this.padding;
+        this.radius = this.width/2;
+
+        var btn_body = g.append('circle')
+            .attr('id', 'btn_clean_body_' + btn_id)
+            .attr('cx', this.cx)
+            .attr('cy', this.cy)
+            .attr('r', this.radius)
+            .style('fill', 'gainsboro')
+            .style('stroke', 'black')
+            .style('stroke-width', '5px')
+            .on('mouseup', toggleShadow);
+
+        // Button Text
+        var text = g.append('text')
+            .attr('id', 'btn_text_title_' + btn_id)
+            .attr('x', this.cx)
+            .attr('y', this.cy)
+            .attr('stroke', 'none')
+            .style('fill', 'black')
+            .attr('text-anchor', 'middle')
+            .style('font-size', '55px')
+            .style('pointer-events', 'none')
+            .text(BTN_NORMAL_TEXT);
+        // Time Text
+        var text_time = g.append('text')
+            .attr('id', 'btn_text_time_' + btn_id)
+            .attr('x', this.cx)
+            .attr('y', this.cy + 36)
+            .attr('text-anchor', 'middle')
+            .style('fill', 'black')
+            .style('font-size', '24px')
+            .style('pointer-events', 'none')
+            .text('press start button');
+
+        var text_logo_care = g.append('text')
+            .attr('id', 'btn_text_logo_' + btn_id)
+            .attr('x', this.cx)
+            .attr('y', this.cy + 140)
+            .attr('stroke', 'none')
+            .style('fill-opacity', 0.3)
+            .style('fill', 'black')
+            .attr('text-anchor', 'middle')
+            .style('font-size', '50px')
+            .style('text-anchor', 'end')
+            .style('pointer-events', 'none')
+            .text('care');
+
+        var text_logo_peel = g.append('text')
+            .attr('id', 'btn_text_logo_peel_' + btn_id)
+            .attr('x', this.cx)
+            .attr('y', this.cy + 140)
+            .attr('stroke', 'none')
+            .style('fill-opacity', 0.3)
+            .style('fill', 'black')
+            .attr('font-weight', 'bold')
+            .attr('text-anchor', 'start')
+            .style('font-size', '50px')
+            .style('pointer-events', 'none')
+            .text('Peel');
+
+
+        var g_arc = svg.append('g')
+            .attr('transform', 'translate(' + [this.cx , this.cy ] + ')');
+
+        var arc = d3.svg.arc()
+            .innerRadius( this.radius * 0.89 )
+            .outerRadius( this.radius * 0.91 )
+            .startAngle(0);
+        var path_spin = g_arc.append('path')
+            .attr('id', 'spin_control_' + btn_id)
+            .datum( {endAngle: 0.33 * tau} )
+            .style( 'fill', '#efefef')
+            .style( 'fill-opacity', 0.1)
+            .attr('d', arc);
+            // .attr('transform', 'translate(' + [this.cx + this.padding, this.cy + this.padding] +')');
+
+
+        this.defineShadow();
+        // btn_body.attr('filter', 'url(#dropShadow)');
+    }
+
+
+    function pad(n)
+    {
+        return (n<10) ? ("0" + n) : n;
+    }
+    function update_elapsed_time()
+    {
+        if ( increase_mode == true )
+        {
+            console.log("increase mode update elapsed time");
+            var spend_time = new Date() - action_start_time;
+            var spend_secs = parseInt(spend_time/1000);
+            var spend_mins = parseInt(spend_secs/60);
+
+            var str_time = "" + pad(spend_mins) + ":" + pad(spend_secs%60);
+            d3.select('#btn_text_time_' + btn_id).text(str_time);
+            tickNotifyEventHandler(str_time);
+        }
+        else
+        {
+            var spend_time = new Date() - action_start_time;
+            var spend_secs = parseInt(spend_time/1000);
+            var secs = CLEAN_TIMEOUT - spend_secs;
+            var mins = parseInt(secs/60);
+
+            var str_time = "" + pad(mins) + ":" + pad(secs%60);
+            d3.select('#btn_text_time_' + btn_id).text(str_time);
+            tickNotifyEventHandler(str_time);
+            if (secs <= 0)
+            {
+                toggleShadow();
+                timeoutNotifyEventHandler();
+            }
+        }
+    }
+
+    function action_tick(){
+        update_elapsed_time();
+    }
+
+
+    var spin_timer;
+    function spin(selection, duration) {
+        var bg = d3.select('#spin_control_' + btn_id)
+            .style('fill', 'dodgerblue')
+            .style('fill-opacity', 0.7);
+        selection.transition()
+            .ease('linear')
+            .duration(duration)
+            .attrTween('transform', function(){
+                return d3.interpolateString('rotate(0)', 'rotate(360)');
+            });
+        spin_timer = setTimeout(function(){
+            // spin(selection, duration);
+            spin(selection, 1000);
+        }, duration);
+    }
+    function spin_start(){
+        var spin_body = d3.select('#spin_control_' + btn_id);
+        spin(spin_body, 500);
+    }
+    function spin_stop(){
+        clearTimeout(spin_timer);
+        var spin_body = d3.select('#spin_control_' + btn_id)
+            .transition()
+            .duration(200)
+            .style('fill', '#efefef')
+            .style('fill-opacity', 0.1);
+    }
+
+    var cleanTimer;
+    function update_button_status(btn_status){
+        console.log('updage clean button status. ' + btn_status);
+        if (btn_status == true){
+            console.log('clean button pressed. start timer ');
+            cleanTimer = setInterval(action_tick, 1000);
+            action_start_time = new Date();
+            action_tick();
+            spin_start();
+            this.is_running = true;
+
+            if (startOperationEventHandler != null)
+                startOperationEventHandler(btn_id);
+        }
+        else // 동작중이 아닌경우
+        {
+
+            clearInterval(cleanTimer);
+            d3.select('#btn_text_time_' + btn_id).text('Press to start');
+            tickNotifyEventHandler("--:--");
+            this.is_running = false;
+            spin_stop();
+
+            if (stopOperationEventHandler != null)
+                stopOperationEventHandler(btn_id);
+        }
+
+        var btn_body = d3.select('#btn_clean_body_' + btn_id);
+        var btn_text = d3.select('#btn_text_title_' + btn_id);
+
+        // btn_body.attr('filter', btn_status ? null : 'url(#dropShadow)')
+        //     .style('fill', btn_status ? 'aliceblue' : 'gainsboro');
+
+        btn_body.transition()
+            .duration(500)
+            .style('stroke-width', btn_status ? '20px' : '5px')
+            .style('stroke', btn_status ? _base_color : '#000');
+        btn_text.text( btn_status ? BTN_PRESSED_TEXT : BTN_NORMAL_TEXT );
+    }
+
+    function toggleShadow(){
+        console.log('toggle shadow. btn_id:' + btn_id + ', button_status:' + button_status);
+        (button_status == true)
+            ? button_status = false: button_status = true;
+        update_button_status(button_status);
+    }
+
+}
+
+/* ***************************************************
+ * Action Button (Start/Stop)
+ * ***************************************************/
+function ActionButton (svg_id, btn_id, _base_color){
+    this.svg_id = svg_id;
+    this.btn_id = btn_id;
+    this.radius = 200;
+    this.width = 120;
+    this.height = 120;
+    this.cx = 100;
+    this.cy = 100;
+    this.padding = 25;
+    var button_status = false;
+    this.is_running = false;
+    this.base_color = _base_color;
+
+    var action_start_time = null;
+
+    var tau = 2 * Math.PI;
+    var startEventHandler = null;
+    var stopEventHandler = null;
+    var startOperationEventHandler = null;
+    var stopOperationEventHandler = null;
+    var BTN_NORMAL_TEXT = "START";
+    var BTN_PRESSED_TEXT = "STOP";
+
+    this.setOperationStartEventHandler = function(callback){
+        if (typeof callback === "function"){
+            console.log("callback function");
+            startOperationEventHandler = callback;
+        }
+    }
+    this.setOperationStopEventHandler = function(callback){
+        if (typeof callback === "function"){
+            stopOperationEventHandler = callback;
+        }
+    }
+
+    this.start = function(){
+    }
+    this.stop = function(){
+
+    }
+
+    this.defineShadow = function() {
+        var svg = d3.select('#' + this.svg_id);
+        var defs = svg.append('defs');
+        var btn_circle = d3.select('#btn_action_body_' + btn_id);
+        var shadow = defs.append('filter')
+            .attr('id', 'dropShadow')
+            .attr('x', + btn_circle.attr('x') - this.padding)
+            .attr('y', + btn_circle.attr('y') - this.padding)
+            .attr('width', + btn_circle.attr('width') + 20 * this.padding)
+            .attr('height', + btn_circle.attr('height') + 20 * this.padding);
+
+        shadow.append('feGaussianBlur')
+            .attr('in', 'SourceAlpha')
+            .attr('stdDeviation', '5');
+
+        shadow.append('feOffset')
+            .attr('dx', '4')
+            .attr('dy', '6');
+
+        var merge = shadow.append('feMerge');
+        merge.append('feMergeNode');
+        merge.append('feMergeNode')
+            .attr('in', 'SourceGraphic');
+    }
+
+    this.set_stop = function()
+    {
+        button_status = false;
+        update_button_status(button_status);
+    }
+
+    this.init = function(){
+        console.log("--- make svg action button ---");
+        var svg = d3.select('#' + this.svg_id);
+        var g = svg.append('g');
+
+        this.width = svg.attr('width') - this.padding * 2;
+        this.height = svg.attr('height') - this.padding * 2;
+        this.cx = this.width/2 + this.padding;
+        this.cy = this.height/2 + this.padding;
+        this.radius = this.width/2;
+
+        console.log('svg width:' + this.width + ', height:' + this.height);
+
+        // Add drop shadow th the rect
+
+
+        var btn_circle = g.append('circle')
+            .attr('id', 'btn_action_body_' + btn_id)
+            .attr('cx', this.cx)
+            .attr('cy', this.cy)
+            .attr('r', this.radius)
+            .style('fill', 'aliceblue')
+            .style('stroke', 'black')
+            .style('stroke-width', '5px')
+            .on('mouseup', toggleShadow);
+        // Button text
+        var text = g.append('text')
+            .attr('id', 'btn_text_title_' + btn_id)
+            .attr('x', this.cx)
+            .attr('y', this.cy)
+            .attr('stroke', 'none')
+            .style('fill', 'black')
+            .attr('text-anchor', 'middle')
+            .style('font-size', '36px')
+            .style('pointer-events', 'none')
+            .text(BTN_NORMAL_TEXT);
+        // Time text
+        var text_time = g.append('text')
+            .attr('id', 'btn_text_time_' + btn_id)
+            .attr('x', this.cx)
+            .attr('y', this.cy + 36)
+            .attr('text-anchor', 'middle')
+            .style('fill', 'black')
+            .style('font-size', '28px')
+            .style('pointer-events', 'none')
+            .text('press start button');
+
+        var g_arc = svg.append('g')
+            .attr('transform', 'translate(' + [this.cx , this.cy ] + ')');
+
+        var arc = d3.svg.arc()
+            .innerRadius( this.radius * 0.85 )
+            .outerRadius( this.radius * 0.9 )
+            .startAngle(0);
+
+        var path_spin = g_arc.append('path')
+            .attr('id', 'spin_control_' + btn_id)
+            .datum( {endAngle: 0.33 * tau} )
+            .style( 'fill', '#efefef')
+            .style( 'fill-opacity', 0.1)
+            .attr('d', arc);
+            // .attr('transform', 'translate(' + [this.cx + this.padding, this.cy + this.padding] +')');
+
+            this.defineShadow();
+    }
+
+    var spin_timeout;
+    function spin(selection, duration) {
+        var background = d3.select('#spin_control_' + btn_id)
+            .style('fill', 'crimson')
+            .style('fill-opacity', 0.7);
+        selection.transition()
+            .ease('linear')
+            .duration(duration)
+            .attrTween('transform', function() {
+                return d3.interpolateString('rotate(0)', 'rotate(360)');
+            });
+
+        spin_timeout = setTimeout(function(){
+            spin(selection, duration);
+        }, duration);
+    }
+
+    function spin_start(){
+        action_start_time = new Date();
+        update_elapsed_time();
+
+        var spin_body = d3.select('#spin_control_' + btn_id);
+        spin(spin_body, 1000);
+        if (startOperationEventHandler != null )
+        {
+            startOperationEventHandler(btn_id);
+        }
+    }
+    function spin_stop(){
+        clearTimeout(spin_timeout);
+        var spin_body = d3.select('#spin_control_' + btn_id)
+            .transition()
+            .duration(1000)
+            .style('fill', '#efefef')
+            .style('fill-opacity', 0.1);
+
+        if (stopOperationEventHandler != null )
+        {
+            stopOperationEventHandler(btn_id);
+        }
+    }
+
+    function pad(n)
+    {
+        return (n<10) ? ("0" + n) : n;
+    }
+
+    function update_elapsed_time()
+    {
+        var spend_time = new Date() - action_start_time;
+        var spend_secs = parseInt(spend_time/1000);
+        var spend_mins = parseInt(spend_secs/60);
+        d3.select('#btn_text_time_' + btn_id).text("" + pad(spend_mins) + ":" + pad(spend_secs%60));
+    }
+
+    function action_tick(){
+        update_elapsed_time();
+    }
+    // refresh action button status
+    var myTimer;
+    function update_button_status(btn_status){
+        console.log("update button status. button_status:%s  button_id:%s", btn_status, btn_id);
+
+        if (btn_status == true){
+            console.log("start timer");
+            action_tick();
+            myTimer = setInterval(action_tick, 500);
+            spin_start();
+            this.is_running = true;
+        }
+        else {
+            spin_stop();
+            clearInterval(myTimer);
+            console.log("stop timer");
+            d3.select('#btn_text_time_' + btn_id).text('Press to start.');
+            this.is_running = false;
+        }
+
+        var btn_body = d3.select('#btn_action_body_' + btn_id);
+
+        btn_body.style('fill', 'aliceblue');
+        btn_body.transition()
+            .duration(500)
+            .style('stroke-width', btn_status ? '20px' : '5px')
+            .style('stroke', btn_status ? _base_color : '#000');
+        var btn_text = d3.select('#btn_text_title_' + btn_id)
+            .text( btn_status ? BTN_PRESSED_TEXT : BTN_NORMAL_TEXT);
+    }
+
+    function toggleShadow(){
+        console.log('toggleShadow. btn_id:' + btn_id + ', button_status:' + button_status);
+        (button_status == true)
+            ? button_status = false: button_status = true;
+
+        update_button_status(button_status);
+    }
+}
+
+/* ****************************************************
+ * Level Button
+ * ****************************************************/
+function LevelButton (svg_id, btn_id, _base_color, _enabled = true){
+    this.svg_id = svg_id;
+    this.cx = 130;
+    this.cy = 160;
+    this.radius = 300;
+    this.width = 140;
+    this.height = 140;
+    this.padding = 35;
+    this.btn_id = btn_id;
+    this.selected_index = 0;
+    this.base_color = _base_color;
+
+    var button_enabled = _enabled;
+
+    var selected_level_index = 0;
+    var is_running = false;
+    var tau = 2 * Math.PI;
+
+    this.setIsRunning = function(_is_running){
+        is_running = _is_running;
+    }
+
+    this.getLevel = function(){
+        return selected_level_index;
+    }
+
+    var valueChangedEventHandler = null;
+
+    this.setValueChangedEventHandler = function(callback){
+        if (typeof callback === "function") {
+        // callback 이 함수인지를 확인 했으니까 함수호출합니다.
+            console.log("callback function");
+            // callback();
+            valueChangedEventHandler = callback;
+        }
+    }
+
+
+    this.init = function(){
+        console.log("--- make svg level button ---");
+        var svg = d3.select('#' + this.svg_id);
+        var g = svg.append('g');
+
+        this.width = svg.attr('width') - this.padding * 2;
+        this.height = svg.attr('height') - this.padding * 2;
+        this.cx = this.width/2 + this.padding;
+        this.cy = this.height/2 + this.padding;
+        this.radius = this.width/2;
+
+        console.log('svg width:' + this.width + ', height:' + this.height);
+
+        var btn_level = g.append('circle')
+            .attr('cx', this.cx)
+            .attr('cy', this.cy)
+            .attr('r', this.radius)
+            // .style('fill', 'url(#radial-gradient)')
+            .style('fill', 'aliceblue')
+            .style('stroke', 'black')
+            .style('stroke-width', '5px');
+
+        if (button_enabled == true){
+            console.log("level button enabled ");
+        }
+        else
+        {
+            console.log("level button disabled ");
+            _base_color = "gray";
+        }
+
+        var text_logo_care = g.append('text')
+            .attr('id', 'btn_text_logo_' + btn_id)
+            .attr('x', this.cx)
+            .attr('y', this.cy + 180)
+            .attr('stroke', 'none')
+            .style('fill-opacity', 0.3)
+            .style('fill', 'black')
+            .attr('text-anchor', 'middle')
+            .style('font-size', '50px')
+            .style('text-anchor', 'end')
+            .style('pointer-events', 'none')
+            .text('care');
+
+        var text_logo_peel = g.append('text')
+            .attr('id', 'btn_text_logo_' + btn_id)
+            .attr('x', this.cx)
+            .attr('y', this.cy + 180)
+            .attr('stroke', 'none')
+            .style('fill-opacity', 0.3)
+            .style('fill', 'black')
+            .attr('font-weight', 'bold')
+            .attr('text-anchor', 'start')
+            .style('font-size', '50px')
+            .style('pointer-events', 'none')
+            .text('Peel');
+
+        var text_level = g.append('text')
+            .attr('id', 'text_level_' + this.btn_id )
+            .attr('x', this.cx)
+            .attr('y', this.cy)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '40px')
+            .style('pointer-events', 'none')
+            .style('fill', 'black')
+            .text('level:' + this.selected_index);
+
+        var g_level_arc = svg.append('g')
+            .attr('transform', 'translate(' + [this.cx * 1 , this.cy * 1 ] + ')');
+
+        var arr_level_arc = new Array(5);
+        var arr_level_active_arc = new Array(5);
+        var arr_level_label_arc = new Array(5);
+
+        for (var i=0; i<5; i++){
+            var start_angle = 0.13 * i * tau - (0.33 * tau);
+            var end_angle = (0.13 + 0.13 * i) * tau - (0.33 * tau);
+            arr_level_arc[i] = d3.svg.arc()
+                .innerRadius( this.radius * 0.4 )
+                .outerRadius( this.radius * 1.0 )
+                .startAngle( start_angle )
+                .endAngle( end_angle );
+            arr_level_active_arc[i] = d3.svg.arc()
+                .innerRadius( this.radius * 0.4 )
+                .outerRadius( this.radius * 1.1 )
+                .startAngle( start_angle )
+                .endAngle( end_angle );
+            arr_level_label_arc[i] = d3.svg.arc()
+                .innerRadius( this.radius * 0.6 )
+                .outerRadius( this.radius * 0.61 )
+                .startAngle( start_angle )
+                .endAngle( end_angle );
+        }
+
+        function deselect_level_path(level_index){
+            var path_level = d3.selectAll('#path_level_' + btn_id + '_' + level_index)
+                .style('fill', 'gainsboro');
+
+            path_level.transition()
+                .duration(500)
+                .ease("elastic")
+                .attr('d', arr_level_arc[level_index]);
+        }
+        function select_level_path(level_index){
+            d3.select('#text_level_' + btn_id)
+                .text('level ' + (level_index + 1));
+            var path_level = d3.selectAll('#path_level_' + btn_id + '_' + level_index)
+                .style('fill', _base_color);
+            // var path_level = d3.selectAll('#path_level_' + btn_id + '_' + level_index)
+            //     .classed('level_btn_active_bg_aha', true);
+
+            path_level.transition()
+                .duration(500)
+                .ease("elastic")
+                .attr('d', arr_level_active_arc[level_index]);
+
+            if ( valueChangedEventHandler != null){
+                valueChangedEventHandler(btn_id);
+            }
+        }
+        for (var m=0; m<5; m++ ){
+            var path_level = g_level_arc.append('path')
+                .attr('id', 'path_level_' + this.btn_id + '_' + m)
+                .style( 'fill', 'white')
+                .style( 'stroke', 'black')
+                .style( 'stroke-width', '5px')
+                .style( 'stroke-opacity', 1 )
+                .attr('d', arr_level_arc[m])
+                .on('mouseover', function(d,i){
+                    d3.select(this)
+                        .style('stroke', 'crimson');
+                })
+                .on('mouseout', function(d,i){
+                    d3.select(this)
+                        .style('stroke', 'black');
+                })
+                .on('mouseup', function(d,i){
+                    if (is_running == true){
+                        console.log('already running. cannot change level. ');
+                        return;
+                    }
+                    var path_id = d3.select(this).attr('id');
+                    console.log("path_id:" + path_id);
+                    console.log(">>path_level_" + btn_id + "_");
+                    var level_index = 0;
+                    if (path_id == 'path_level_' + btn_id + '_0') level_index = 0;
+                    else if(path_id == 'path_level_' + btn_id + '_1') level_index = 1;
+                    else if(path_id == 'path_level_' + btn_id + '_2') level_index = 2;
+                    else if(path_id == 'path_level_' + btn_id + '_3') level_index = 3;
+                    else if(path_id == 'path_level_' + btn_id + '_4') level_index = 4;
+
+                    console.log("clicked level " + level_index );
+                    deselect_level_path(selected_level_index);
+                    selected_level_index = level_index;
+                    select_level_path(selected_level_index);
+                });
+
+            // make path for level label
+            var path_label = g_level_arc.append('path')
+                .attr('id', 'path_label_' + btn_id + '_' + m)
+                .style( 'stroke', 'black' )
+                .style( 'stroke-width', '0px' )
+                .style( 'fill', 'gainsboro')
+                .style( 'fill-opacity', 0.1 )
+                .attr( 'd', arr_level_label_arc[m] );
+
+            // draw label
+            var text_label = g_level_arc.append("text")
+                .attr('id', 'zz_label_level_' + btn_id + '_' + m )
+                .append("textPath") //append a textPath to the text element
+                .attr("xlink:href", "#path_label_" + btn_id + "_" + m) //place the ID of the path here
+                .style("text-anchor","middle") //place the text halfway on the arc
+                .style('fill', 'black')
+                .style('font-size', '26px')
+                .style('pointer-events', 'none')
+                .attr( 'startOffset', "25%")
+                .text( m + 1)
+                .on('mouseup', function(d,i){
+                    if (is_running == true){
+                        console.log('already running. cannot change level. ');
+                        return;
+                    }
+                    var path_id = d3.select(this).attr('id');
+                    var level_index = 0;
+                    if (path_id == 'zz_label_level_' + btn_id + '_0') level_index = 0;
+                    else if(path_id == 'zz_label_level_' + btn_id + '_1') level_index = 1;
+                    else if(path_id == 'zz_label_level_' + btn_id + '_2') level_index = 2;
+                    else if(path_id == 'zz_label_level_' + btn_id + '_3') level_index = 3;
+                    else if(path_id == 'zz_label_level_' + btn_id + '_4') level_index = 4;
+
+                    deselect_level_path(selected_level_index);
+                    selected_level_index = level_index;
+                    select_level_path(selected_level_index);
+                });
+            deselect_level_path(m);
+        }
+        select_level_path(selected_level_index);
+
+    };
+}
+
+function beep(){
+    $.ajax({
+        type: "POST",
+        url: "request_beep",
+        dataType: "text",
+        success: function(data){
+
+        },
+        error: function(data){
+            console.log("---Fail beep");
+        }
+    })
+}
+
+
+function request_operation_to_server(_mode, _level){
+    // _mode : aha, bha, hyd, oxygen, clean
+    // _level : 0 (off) 1 ~ 5
+    $.ajax({
+        type: "POST",
+        url: "request_gpio_operation",
+        dataType: "text",
+        data: {
+            mode: _mode,
+            level: _level
+        },
+        success: function(data){
+            console.log("---Success Post Request Operation" );
+        },
+        error: function(data){
+            console.log("---Fail Post Request Operation");
+        }
+    })
+}
+function operation_start_event_handler(_mode)
+{
+    console.log("Operation Started. mode:" + _mode);
+    current_running_mode = _mode;
+    switch (_mode)
+    {
+        case "aha_action":
+            // aha_level_btn.setIsRunning(true);
+            request_operation_to_server("aha", aha_level_btn.getLevel() + 1);
+            break;
+        case "bha_action":
+            // bha_level_btn.setIsRunning(true);
+            request_operation_to_server("bha", bha_level_btn.getLevel() + 1);
+            break;
+        case "hyd_action":
+            // hyd_level_btn.setIsRunning(true);
+            request_operation_to_server("hyd", hyd_level_btn.getLevel() + 1);
+            break;
+        case "oxygen":
+            // oxygen_level_btn.setIsRunning(true);
+            request_operation_to_server("oxygen", 5);
+            break;
+        case "clean":
+            // clean_level_btn.setIsRunning(true);
+            request_operation_to_server("clean",  5);
+            break;
+    }
+    $("svg[name=btn_home]").hide();
+    beep();
+
+}
+function operation_stop_event_handler(_mode)
+{
+    console.log("Operation Stoped. mode:" + _mode);
+    current_running_mode = "none";
+    switch (_mode)
+    {
+        case "aha_action":
+            aha_level_btn.setIsRunning(false);
+            request_operation_to_server("aha", 0);
+            break;
+        case "bha_action":
+            bha_level_btn.setIsRunning(false);
+            request_operation_to_server("bha", 0);
+            break;
+        case "hyd_action":
+            hyd_level_btn.setIsRunning(false);
+            request_operation_to_server("hyd", 0);
+            break;
+        case "oxygen":
+            // oxygen_level_btn.setIsRunning(false);
+            request_operation_to_server("oxygen", 0);
+            break;
+        case "clean":
+            // clean_level_btn.setIsRunning(false);
+            request_operation_to_server("clean", 0);
+            break;
+    }
+
+    $("svg[name=btn_home]").show();
+    beep();
+}
+function on_level_changed(_mode)
+{
+    console.log("level changed. mode:" + _mode);
+    console.log("current running mode:" + current_running_mode);
+    switch (current_running_mode)
+    {
+        case "aha_action":
+            console.log("aha level changed. already running, just change level");
+            request_operation_to_server("aha", aha_level_btn.getLevel() + 1);
+            beep();
+            break;
+        case "bha_action":
+            request_operation_to_server("bha", bha_level_btn.getLevel() + 1);
+            beep();
+            break;
+        case "hyd_action":
+            request_operation_to_server("hyd", hyd_level_btn.getLevel() + 1);
+            beep();
+            break;
+        default:
+            console.log("not running.");
+            break;
+    }
+    beep();
+}
+
+
+
+var aha_level_btn = null;
+var aha_action_btn = null;
+var bha_level_btn = null;
+var bha_action_btn = null;
+var hyd_level_btn = null;
+var hyd_action_btn = null;
+
+// var oxygen_level_btn = null;
+// var oxygen_action_btn = null;
+
+var oxygen_level_btn = null;
+
+var clean_level_btn = null;
+
+
+
+
+var current_running_mode = "none";
+
+function open_water_over_alarm_popup()
+{
+    $("#menu_home").trigger("click");       // goto main
+    $('#myModal').modal(
+        {
+            backdrop: 'static',
+            keyboard: false,
+            show: true
+        });
+
+    if (current_running_mode != "none")
+    {
+        aha_action_btn.set_stop();
+        bha_action_btn.set_stop();
+        hyd_action_btn.set_stop();
+        oxygen_action_btn.set_stop();
+        clean_action_btn.set_stop();
+    }
+}
+function close_water_over_alarm_popup()
+{
+    $('#myModal').modal('hide');
+}
+
+function request_water_sensor_status(){
+    // console.log("request water sensor status");
+    $.ajax({
+        type: "POST",
+        url: "request_water_sensor_status",
+        dataType: "text",
+        data: {
+        },
+        success: function(data){
+            var res = $.parseJSON(data);
+            // console.log("---Success Post Request water sensor detected: " + res.water_sensor_detected );
+            (res.water_sensor_detected == true) ? open_water_over_alarm_popup() : close_water_over_alarm_popup();
+            if (res.water_sensor_detected == true){
+                beep();
+                beep();
+                beep();
+            }
+        },
+        error: function(data){
+            console.log("---Fail Post Request water sensor status");
+        }
+    });
+}
+
+function waterCheckTimerTick(){
+    var d = new Date();
+    var t = d.toLocaleTimeString();
+    // console.log("waterCheckTimerTick. " + t);
+    request_water_sensor_status();
+}
+function startWaterCheckTimer(){
+    waterSensorCheckTimer = setInterval(function(){ waterCheckTimerTick() }, 3000);
+}
+function stopWaterCheckTimer(){
+    clearInterval(waterSensorCheckTimer);
+}
+
+function cleanButtonTimerTick(str_time){
+    console.log("clean button tick event. " + str_time);
+    d3.select('#clean_timer_tick_text').text(str_time);
+}
+function cleanButtonTimeoutOccur(){
+    console.log("clean button timeout occur!");
+    beep();
+    beep();
+    beep();
+}
+
+function oxygenButtonTimerTick(str_time){
+    console.log("oxygen tick event. " + str_time);
+    d3.select('#oxygen_timer_tick_text').text(str_time);
+}
+function oxygenButtonTimeoutOccur(){
+    console.log("oxygen timeout occur!");
+    beep();
+    beep();
+    beep();
+}
+
+$(document).ready(function(){
+    startWaterCheckTimer();
+
+    aha_level_btn = new LevelButton('svg_aha_level_btn', 'aha', '#ee8833');
+    aha_level_btn.init();
+    aha_level_btn.setValueChangedEventHandler(on_level_changed);
+    aha_action_btn = new ActionButton('svg_aha_action_btn', 'aha_action', '#ee8833');
+    aha_action_btn.init();
+    aha_action_btn.setOperationStartEventHandler( operation_start_event_handler );
+    aha_action_btn.setOperationStopEventHandler( operation_stop_event_handler );
+
+    bha_level_btn = new LevelButton('svg_bha_level_btn', 'bha', '#77aa11');
+    bha_level_btn.init();
+    bha_level_btn.setValueChangedEventHandler(on_level_changed);
+    bha_action_btn = new ActionButton('svg_bha_action_btn', 'bha_action', '#77aa11');
+    bha_action_btn.init();
+    bha_action_btn.setOperationStartEventHandler( operation_start_event_handler );
+    bha_action_btn.setOperationStopEventHandler( operation_stop_event_handler );
+
+    hyd_level_btn = new LevelButton('svg_hyd_level_btn', 'hyd', '#6699ff');
+    hyd_level_btn.init();
+    hyd_level_btn.setValueChangedEventHandler(on_level_changed);
+    hyd_action_btn = new ActionButton('svg_hyd_action_btn', 'hyd_action', '#6699ff');
+    hyd_action_btn.init();
+    hyd_action_btn.setOperationStartEventHandler( operation_start_event_handler );
+    hyd_action_btn.setOperationStopEventHandler( operation_stop_event_handler );
+
+    // oxygen_level_btn = new LevelButton('svg_oxygen_level_btn', 'oxygen', 'mediumvioletred', false);
+    // oxygen_level_btn.init();
+    // oxygen_level_btn.setValueChangedEventHandler(on_level_changed);
+    // oxygen_action_btn = new ActionButton('svg_oxygen_action_btn', 'oxygen_action', 'mediumvioletred');
+    // oxygen_action_btn.init();
+    // oxygen_action_btn.setOperationStartEventHandler( operation_start_event_handler );
+    // oxygen_action_btn.setOperationStopEventHandler( operation_stop_event_handler );
+    // oxygen_level_btn.setIsRunning(true);
+
+
+    oxygen_level_btn = new CleanButton('svg_oxygen_btn', 'oxygen', 'mediumvioletred', true);
+    oxygen_level_btn.init();
+    oxygen_level_btn.setOperationStartEventHandler( operation_start_event_handler );
+    oxygen_level_btn.setOperationStopEventHandler( operation_stop_event_handler );
+    oxygen_level_btn.setTickNotifyEventHandler ( oxygenButtonTimerTick );
+    oxygen_level_btn.setTimeoutNotifyEventHandler( oxygenButtonTimeoutOccur );
+
+    // clean_action_btn = new ActionButton('svg_clean_action_btn', 'clean_action', '#3344dd');
+    // clean_action_btn.init();
+    // clean_action_btn.setOperationStartEventHandler( operation_start_event_handler );
+    // clean_action_btn.setOperationStopEventHandler( operation_stop_event_handler );
+
+    clean_level_btn = new CleanButton('svg_clean_btn', 'clean', '#3344dd');
+    clean_level_btn.init();
+    clean_level_btn.setOperationStartEventHandler( operation_start_event_handler);
+    clean_level_btn.setOperationStopEventHandler( operation_stop_event_handler );
+    clean_level_btn.setTickNotifyEventHandler( cleanButtonTimerTick );
+    clean_level_btn.setTimeoutNotifyEventHandler( cleanButtonTimeoutOccur );
+
+    $("#div_menu_aha").on("mouseup", function(){
+        $("#menu_aha").trigger("click");
+        beep();
+    });
+    $("#div_menu_bha").on("mouseup", function(){
+        $("#menu_bha").trigger("click");
+        beep();
+    });
+    $("#div_menu_hyd").on("mouseup", function(){
+        $("#menu_hyd").trigger("click");
+        beep();
+    });
+    $("#div_menu_oxygen").on("mouseup", function(){
+        $("#menu_oxygen").trigger("click");
+        beep();
+    });
+    $("#div_menu_clean").on("mouseup", function(){
+        $("#menu_clean").trigger("click");
+        beep();
+    });
+    $("#div_menu_config").on("mouseup", function(){
+        $("#menu_config").trigger("click");
+        beep();
+        // $('#myModal').modal({backdrop: 'static', keyboard: false});
+    });
+    $("svg[name=btn_home]").on('mouseup', function(){
+        $("#menu_home").trigger("click");
+        beep();
+    });
+    $("#menu_bha").trigger("click");
+
+    // open_water_over_alarm_popup();
+});
+</script>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+<!--<div>-->
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+        <h2 class="modal-title">Water Over</h2>
+      </div>
+      <div class="modal-body">
+        <h3 style="text-align: center;">
+        The water in the water tank is full. <br>
+        Please empty the water.
+        </h3>
+
+      </div>
+      <div class="modal-footer">
+        <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Trigger the modal with a button -->
+<!--<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>-->
+
+
+
+
+
+<div class="page">
+    <div class="navbar">
+        <ul class="nav nav-tabs" style="display:none;">
+            <li class="active"><a data-toggle="tab" href="#page_home" id="menu_home">HOME</a></li>
+            <li><a data-toggle="tab" href="#page_aha" id="menu_aha">AHA</a></li>
+            <li><a data-toggle="tab" href="#page_bha" id="menu_bha">BHA</a></li>
+            <li><a data-toggle="tab" href="#page_hyd" id="menu_hyd">HYD</a></li>
+            <li><a data-toggle="tab" href="#page_oxygen" id="menu_oxygen">OXYGEN</a></li>
+            <li><a data-toggle="tab" href="#page_clean" id="menu_clean">CLEAN</a></li>
+            <li><a data-toggle="tab" href="#page_config" id="menu_config">CONFIG</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="page_home" class="tab-pane fade in active">
+                <div class="container" style="width:100%;">
+                    <div class="row">
+                        <div class="col-sm-4 menu menu_aha" id="div_menu_aha">
+                            <svg class="menu-icon">
+                                <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-star-empty"></use>
+                            </svg>
+                            AHA<br>
+                        </div>
+                        <div class="col-sm-4 menu menu_bha" id="div_menu_bha">
+                            <svg class="menu-icon">
+                                <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-dice"></use>
+                            </svg>
+                            BHA<br>
+                        </div>
+                        <div class="col-sm-4 menu menu_hyd" id="div_menu_hyd">
+                            <svg class="menu-icon">
+                                <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-drop"></use>
+                            </svg>
+                            HYD<br>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 menu menu_oxygen" id="div_menu_oxygen">
+                            <svg class="menu-icon">
+                                <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-magic-wand"></use>
+                            </svg>
+                            OXYGEN<br>
+                        </div>
+                        <div class="col-sm-4 menu menu_clean" id="div_menu_clean">
+                            <svg class="menu-icon">
+                                <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#symbol_icon_clean"></use>
+                            </svg>
+                            CLEAN<br>
+                        </div>
+                        <div class="col-sm-4 menu menu_config" id="div_menu_config">
+                            <svg class="menu-icon">
+                                <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-cog"></use>
+                            </svg>
+                            CONFIG<br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+<!-- ################################ AHA ############################# -->
+            <div id="page_aha" class="tab-pane fade container bg-aha">
+                <svg id="svg_bgd" width="1000" height="570" unselectable="on" class="unselectable">
+                    <text x="500" y="240" font-size="200"
+                            style="fill: #ffffff; fill-opacity:0.4;">
+                        AHA
+                    </text>
+                    <svg class="exit-small-icon" name="btn_home" x="900" y="0" width="100" height="100">
+                        <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#zz-btn-close"></use>
+                    </svg>
+
+                    <svg id="svg_aha_level_btn" x="0" y="10" width="580" height="580"
+                        style="stroke:none; fill:none;">
+                    </svg>
+
+                    <svg id="svg_aha_action_btn" x="600" y="180" width="360" height="360"
+                        style="stroke:none; fill:none;">
+                </svg>
+
+            </div>
+<!-- ############################### BHA ################################-->
+            <div id="page_bha" class="tab-pane fade bg-bha">
+                <svg width="1000" height="570" unselectable="on" class="unselectable">
+                    <text x="500" y="240" font-size="200"
+                            style="fill: #ffffff; fill-opacity:0.4;">
+                        BHA
+                    </text>
+                    <svg class="exit-small-icon" name="btn_home" x="900" y="0" width="100" height="100">
+                        <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#zz-btn-close"></use>
+                    </svg>
+                    <svg id="svg_bha_level_btn" x="0" y="10" width="580" height="580"
+                        style="stroke:none; fill:none;">
+                    </svg>
+
+                    <svg id="svg_bha_action_btn" x="600" y="180" width="360" height="360"
+                        style="stroke:none; fill:none;">
+                </svg>
+
+                <svg class="menu-bg-icon" x="700" y="400" width="200" height="200">
+                    <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-dice"></use>
+                </svg>
+            </div>
+<!-- ############################### HYD ###############################-->
+            <div id="page_hyd" class="tab-pane fade bg-hyd">
+                <svg width="1000" height="570" unselectable="on" class="unselectable">
+                    <text x="500" y="240" font-size="200"
+                            style="fill: #ffffff; fill-opacity:0.4;">
+                        HYD
+                    </text>
+                    <svg class="exit-small-icon" name="btn_home" x="900" y="0" width="100" height="100">
+                        <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#zz-btn-close"></use>
+                    </svg>
+                    <svg id="svg_hyd_level_btn" x="0" y="10" width="580" height="580"
+                        style="stroke:none; fill:none;">
+                    </svg>
+
+                    <svg id="svg_hyd_action_btn" x="600" y="180" width="360" height="360"
+                        style="stroke:none; fill:none;">
+                </svg>
+
+                <svg class="menu-bg-icon" x="700" y="400" width="200" height="200">
+                    <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-drop"></use>
+                </svg>
+            </div>
+<!-- ###################################### OXYGEN ############################################ -->
+            <div id="page_oxygen" class="tab-pane fade bg-oxygen">
+                <svg width="1000" height="570" unselectable="on" class="unselectable">
+
+                    <svg class="exit-small-icon" name="btn_home" x="900" y="0" width="100" height="100">
+                        <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#zz-btn-close"></use>
+                    </svg>
+                    <svg id="svg_oxygen_btn" x="50" y="50" width="500" height="500"
+                        style="stroke:none; fill:none;">
+                    </svg>
+
+                    <text x="760" y="260"
+                        font-size="100"
+                        text-anchor="middle"
+                        style="fill: #ffffff; fill-opacity:0.4;">
+                        OXYGEN
+                    </text>
+                    <text id="oxygen_timer_tick_text"
+                        x="760" y="400"
+                        font-size="130"
+                        text-anchor="middle"
+                        style="fill: #ffffff; fill-opacity: 0.4;">
+                    </text>
+
+                    <svg class="menu-bg-icon" x="800" y="400" width="150" height="150">
+                        <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-magic-wand"></use>
+                    </svg>
+                </svg>
+            </div>
+<!-- ###################################### CLEAN ############################################# -->
+            <div id="page_clean" class="tab-pane fade bg-clean">
+                <svg width="1000" height="570" unselectable="on" class="unselectable">
+                    <svg class="exit-small-icon" name="btn_home" x="900" y="0" width="100" height="100">
+                        <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#zz-btn-close"></use>
+                    </svg>
+                    <svg id="svg_clean_btn" x="50" y="50" width="500" height="500"
+                        style="stroke:none; fill:none;">
+                    </svg>
+                    <text x="760" y="260"
+                        font-size="100"
+                        text-anchor="middle"
+                        style="fill: #ffffff; fill-opacity:0.4;">
+                        CLEAN
+                    </text>
+                    <text id="clean_timer_tick_text"
+                        x="760" y="400"
+                        font-size="130"
+                        text-anchor="middle"
+                        style="fill: #ffffff; fill-opacity: 0.4;">
+                    </text>
+                    <svg class="menu-bg-icon" x="800" y="400" width="150" height="150">
+                        <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#symbol_icon_clean"></use>
+                    </svg>
+                </svg>
+
+            </div>
+<!-- ###################################### CONFIG ############################################# -->
+            <div id="page_config" class="tab-pane fade container bg-config">
+                <svg width="1000" height="100" unselectable="on" class="unselectable">
+                    <text x="10" y="50" font-size="30"
+                            style="fill: #ffffff; fill-opacity:1;">
+                        CONFIGURATION
+                    </text>
+                    <svg class="exit-small-icon" name="btn_home" x="900" y="0" width="100" height="100">
+                        <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#zz-btn-close"></use>
+                    </svg>
+                </svg>
+
+                <div class=" well-sm text-center">
+                    <div>
+                        <h2>Care<b>Peel</b></h2>
+                    </div>
+                    <h3> H/W Version : cp_1.0</h3>
+                    <h3> S/W Version : 1.0.1.0 </h3>
+                    <div>
+                        <label>build:201702041727</label>
+                    </div>
+
+                    <h3> Diagnosis (Will be provided later.)</h3>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-lg btn-success ">
+                            <input type="radio" name="options" id="option1" autocomplete="off" >On</input>
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </label>
+                        <label class="btn btn-lg btn-success active">
+                            <input type="radio" name="options" id="option2" autocomplete="off" checked>Off</input>
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </label>
+
+                    </div>
+
+                    <h3> Volumn (Will be provided later.)</h3>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-lg btn-success active">
+                            <input type="radio" name="options" id="option2" autocomplete="off" checked>0</input>
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </label>
+                        <label class="btn btn-lg btn-primary">
+                            <input type="radio" name="options" id="option1" autocomplete="off" >20</input>
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </label>
+                        <label class="btn btn-lg btn-primary">
+                            <input type="radio" name="options" id="option1" autocomplete="off" >40</input>
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </label>
+                        <label class="btn btn-lg btn-primary">
+                            <input type="radio" name="options" id="option1" autocomplete="off" >60</input>
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </label>
+                        <label class="btn btn-lg btn-primary">
+                            <input type="radio" name="options" id="option1" autocomplete="off" >80</input>
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </label>
+                        <label class="btn btn-lg btn-primary">
+                            <input type="radio" name="options" id="option1" autocomplete="off" >100</input>
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </label>
+                    </div>
+                    <!--<div>
+                          <button type="button" class="btn btn-info btn-lg">Exit</button>
+                    </div>-->
+                </div>
+
+				<!--<svg class="menu-bg-icon">
+                    <use xlink:href="{{ url_for('static', filename='svg/icons.svg') }}#lnr-cog"></use>
+                </svg>-->
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
